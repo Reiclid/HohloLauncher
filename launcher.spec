@@ -5,7 +5,7 @@ a = Analysis(
     ['launcher.py'],
     pathex=[],
     binaries=[],
-    datas=[('venv', 'venv')],
+    datas=[('web', 'web')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
