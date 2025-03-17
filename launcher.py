@@ -3,6 +3,7 @@ import os
 import json
 import subprocess
 import urllib.request
+import requests
 
 eel.init('web')
 
@@ -12,6 +13,39 @@ MINECRAFT_DIR = os.path.abspath(".")
 VERSIONS_DIR = os.path.join(MINECRAFT_DIR, "versions")
 LIBRARIES_DIR = os.path.join(MINECRAFT_DIR, "libraries")
 
+# Функція для відправлення логів
+@eel.expose
+def add_log(message):
+    print(message)  # Логування в консоль
+    eel.update_log(message)  # Виклик функції з JS
+
+# URL для отримання вмісту файлів з GitHub репозиторію
+repo_url = "https://api.github.com/repos/Reiclid/HohloLauncher/contents/{folder}?ref=lib-msr"
+
+def download_file(url, save_path):
+    response = requests.get(url)
+    with open(save_path, 'wb') as f:
+        f.write(response.content)
+    add_log(f"Завантажено {save_path}")  # Додаємо лог
+
+def download_folder(folder):
+    folder_url = repo_url.format(folder=folder)
+    response = requests.get(folder_url)
+    
+    if response.status_code == 200:
+        files = response.json()
+        for file in files:
+            if file['type'] == 'file':
+                target = os.path.join(folder, file['name'])
+                if os.path.exists(target):
+                    add_log(f"{target} вже існує, пропускаю...")
+                else:
+                    download_file(file['download_url'], target)
+            else:
+                add_log(f"Пропущено {file['name']} (не файл).")
+    else:
+        add_log(f"❌ Помилка при отриманні вмісту для {folder}: {response.status_code}")
+
 def ensure_minecraft_version():
     version_manifest_path = os.path.join(MINECRAFT_DIR, "version_manifest_v2.json")
     with open(version_manifest_path, "r") as f:
@@ -20,7 +54,7 @@ def ensure_minecraft_version():
     version_data = next(v for v in version_manifest["versions"] if v["id"] == VERSION)
     version_url = version_data["url"]
 
-    print(f"Завантажую: {version_url}")
+    add_log(f"Завантажую: {version_url}")
     os.makedirs(os.path.join(VERSIONS_DIR, VERSION), exist_ok=True)
     urllib.request.urlretrieve(version_url, f"{VERSIONS_DIR}/{VERSION}/{VERSION}.json")
 
@@ -38,13 +72,12 @@ def ensure_minecraft_version():
             if not os.path.exists(lib_path):
                 download_file(artifact["url"], lib_path)
 
-
 def ensure_fabric_version():
     fabric_version_name = f"fabric-loader-{FABRIC_LOADER}-{VERSION}"
     fabric_profile_path = os.path.join(VERSIONS_DIR, fabric_version_name, f"{fabric_version_name}.json")
     
     if not os.path.exists(fabric_profile_path):
-        print("⚙️ Завантаження Fabric Loader...")
+        add_log("⚙️ Завантаження Fabric Loader...")
         fabric_meta_url = f"https://meta.fabricmc.net/v2/versions/loader/{VERSION}/{FABRIC_LOADER}/profile/json"
         with urllib.request.urlopen(fabric_meta_url) as response:
             fabric_meta = json.loads(response.read().decode())
@@ -63,10 +96,18 @@ def ensure_fabric_version():
 
     return fabric_version_name, fabric_profile_path  # Ім'я версії і шлях до профілю
 
-
 @eel.expose
 def start_game(username):
     try:
+        add_log("Початок завантаження гри...")
+
+        # Завантаження файлів з GitHub тільки при натисканні кнопки
+        directories = ["mods", "resourcepacks", "shaderpacks"]
+        for folder in directories:
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+            download_folder(folder)
+
         config = {
             "server_ip": "play.example.com",
             "server_port": "25565"
@@ -123,15 +164,13 @@ def start_game(username):
         # Остаточна команда
         ARGS = ["java"] + JVM_ARGS + MC_ARGS
 
-        print("Команда запуску:")
-        print(" ".join(ARGS))
+        add_log(f"Команда запуску: {' '.join(ARGS)}")
 
         subprocess.Popen(ARGS)
-        return f"✅ Гра запускається як {username}!"
+        add_log(f"✅ Гра запускається як {username}!")
 
     except Exception as e:
-        return f"❌ Сталася помилка: {str(e)}"
-
+        add_log(f"❌ Сталася помилка: {str(e)}")
 
 # Запуск GUI
-eel.start('index.html', size=(700, 500))
+eel.start('index.html', size=(700, 700))

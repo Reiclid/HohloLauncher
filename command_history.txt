@@ -1,3 +1,0 @@
-/reg 123 123
-/reg 0192837465 0192837465
-/tp Reiclid Wwworm
