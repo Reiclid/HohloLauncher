@@ -1,3 +1,8 @@
 @echo off
-start "" /b venv\Scripts\python.exe launcher.py
+echo Активуємо venv...
+call venv\Scripts\activate
+
+echo Запускаємо launcher.py...
+python launcher.py
+
 exit
