@@ -191,7 +191,10 @@ def start_game(username):
         # JVM та Minecraft аргументи
         JVM_ARGS = [
             "-Xmx8G", "-Xms2G",
-            "-cp", classpath
+            "-cp", classpath,
+            "-Dlog4j2.formatMsgNoLookups=true",  # ✅ Відключення зайвих логів
+            "-Dlog4j.configurationFile=log4j2.xml",  # Додає конфігурацію log4j, якщо у тебе є такий файл
+            "-Dlog4j2.level=ERROR"  # Зменшує рівень логування
         ]
         MC_ARGS = [
             main_class,
@@ -205,6 +208,8 @@ def start_game(username):
             "--userType", "legacy",
             "--quickPlayMultiplayer", "51.195.61.129:25614"  # ✅ Автопідключення
         ]
+
+        JVM_ARGS.append("-Dlog4j2.formatMsgNoLookups=true")
 
         # Остаточна команда
         ARGS = ["java"] + JVM_ARGS + MC_ARGS
