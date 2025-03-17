@@ -210,13 +210,16 @@ def start_game(username):
         ]
 
         JVM_ARGS.append("-Dlog4j2.formatMsgNoLookups=true")
+        MC_ARGS.append("--nogui")
+
 
         # Остаточна команда
         ARGS = ["java"] + JVM_ARGS + MC_ARGS
 
         add_log(f"Команда запуску: {' '.join(ARGS)}")
 
-        subprocess.Popen(ARGS)
+        subprocess.Popen(ARGS, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
+
         add_log(f"✅ Гра запускається як {username}!")
 
     except Exception as e:
