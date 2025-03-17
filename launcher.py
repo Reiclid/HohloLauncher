@@ -4,6 +4,8 @@ import json
 import subprocess
 import urllib.request
 import requests
+import zipfile
+import shutil
 
 eel.init('web')
 
@@ -12,6 +14,47 @@ FABRIC_LOADER = "0.16.10"
 MINECRAFT_DIR = os.path.abspath(".")
 VERSIONS_DIR = os.path.join(MINECRAFT_DIR, "versions")
 LIBRARIES_DIR = os.path.join(MINECRAFT_DIR, "libraries")
+
+JAVA_URL = "https://github.com/adoptium/temurin21-binaries/releases/latest/download/OpenJDK21U-jdk_x64_windows_hotspot.zip"
+JAVA_DIR = os.path.join(os.getcwd(), "jdk")
+
+def check_and_install_java():
+    try:
+        # Перевіряємо наявність Java
+        subprocess.run(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        print("✅ Java вже встановлено!")
+    except subprocess.CalledProcessError:
+        print("⚠️ Java не знайдено! Завантажуємо OpenJDK...")
+        download_and_extract_java()
+
+def download_and_extract_java():
+    # Завантажуємо Java
+    java_zip = "java.zip"
+    urllib.request.urlretrieve(JAVA_URL, java_zip)
+    print("✅ OpenJDK завантажено!")
+
+    # Розпаковуємо
+    with zipfile.ZipFile(java_zip, "r") as zip_ref:
+        zip_ref.extractall(JAVA_DIR)
+    
+    # Видаляємо архів
+    os.remove(java_zip)
+    print("✅ OpenJDK встановлено!")
+
+    # Додаємо в PATH
+    java_bin = os.path.join(JAVA_DIR, "jdk-21+36", "bin")  # ⚠️ Перевір ім'я папки після розпакування
+    os.environ["PATH"] = java_bin + os.pathsep + os.environ["PATH"]
+    print(f"✅ OpenJDK додано в PATH: {java_bin}")
+
+    # Перевіряємо ще раз
+    try:
+        subprocess.run(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        print("✅ Java успішно встановлено!")
+    except subprocess.CalledProcessError:
+        print("❌ Помилка встановлення Java!")
+
+# Викликаємо функцію перед запуском гри
+check_and_install_java()
 
 # Функція для відправлення логів
 @eel.expose
