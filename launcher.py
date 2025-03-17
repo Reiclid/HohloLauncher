@@ -23,10 +23,12 @@ def add_log(message):
 repo_url = "https://api.github.com/repos/Reiclid/HohloLauncher/contents/{folder}?ref=lib-msr"
 
 def download_file(url, save_path):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Створюємо всі потрібні папки
     response = requests.get(url)
     with open(save_path, 'wb') as f:
         f.write(response.content)
     add_log(f"Завантажено {save_path}")  # Додаємо лог
+
 
 def download_folder(folder):
     folder_url = repo_url.format(folder=folder)
