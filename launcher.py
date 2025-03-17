@@ -15,45 +15,55 @@ MINECRAFT_DIR = os.path.abspath(".")
 VERSIONS_DIR = os.path.join(MINECRAFT_DIR, "versions")
 LIBRARIES_DIR = os.path.join(MINECRAFT_DIR, "libraries")
 
-JAVA_URL = "https://github.com/adoptium/temurin21-binaries/releases/latest/download/OpenJDK21U-jdk_x64_windows_hotspot.zip"
+JAVA_URL = "https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
 JAVA_DIR = os.path.join(os.getcwd(), "jdk")
 
 def check_and_install_java():
     try:
-        # Перевіряємо наявність Java
+        # Спроба виклику java -version
         subprocess.run(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         print("✅ Java вже встановлено!")
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         print("⚠️ Java не знайдено! Завантажуємо OpenJDK...")
         download_and_extract_java()
 
 def download_and_extract_java():
-    # Завантажуємо Java
     java_zip = "java.zip"
+    
+    print("[INFO] Завантаження OpenJDK...")
     urllib.request.urlretrieve(JAVA_URL, java_zip)
-    print("✅ OpenJDK завантажено!")
+    print("[INFO] Завантажено!")
 
-    # Розпаковуємо
+    print("[INFO] Розпаковка OpenJDK...")
     with zipfile.ZipFile(java_zip, "r") as zip_ref:
         zip_ref.extractall(JAVA_DIR)
-    
-    # Видаляємо архів
     os.remove(java_zip)
-    print("✅ OpenJDK встановлено!")
+    print("[INFO] OpenJDK розпаковано у:", JAVA_DIR)
 
-    # Додаємо в PATH
-    java_bin = os.path.join(JAVA_DIR, "jdk-21+36", "bin")  # ⚠️ Перевір ім'я папки після розпакування
+    # Пошук папки jdk-... в JAVA_DIR
+    # (Беремо першу папку, що починається з "jdk")
+    jdk_subdir = None
+    for name in os.listdir(JAVA_DIR):
+        if name.startswith("jdk"):
+            jdk_subdir = name
+            break
+
+    if jdk_subdir is None:
+        print("❌ Не вдалося знайти папку jdk всередині:", JAVA_DIR)
+        return
+
+    java_bin = os.path.join(JAVA_DIR, jdk_subdir, "bin")
     os.environ["PATH"] = java_bin + os.pathsep + os.environ["PATH"]
-    print(f"✅ OpenJDK додано в PATH: {java_bin}")
+    print("✅ Java додано в PATH:", java_bin)
 
-    # Перевіряємо ще раз
+    # Перевірка ще раз
     try:
         subprocess.run(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         print("✅ Java успішно встановлено!")
-    except subprocess.CalledProcessError:
-        print("❌ Помилка встановлення Java!")
+    except Exception as e:
+        print("❌ Помилка встановлення Java:", e)
 
-# Викликаємо функцію перед запуском гри
+# Викликаємо перевірку Java на початку
 check_and_install_java()
 
 # Функція для відправлення логів
