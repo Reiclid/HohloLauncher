@@ -5,17 +5,73 @@
     <meta charset="UTF-8">
     <title>XLauncher</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="game-logo pulse">✦</div>
-        <h1>XLauncher</h1>
-        <input type="text" id="username" placeholder="Введи нік">
-        <button onclick="launchGame()">Запуск гри</button>
+    <div class="bg-gif"></div>
+    <div class="main-layout">
+        <div class="server-description">
+            <h2 class="server-title">Наш ігровий сервер</h2>
+            <p class="server-content">
+                Выживание в ограниченном мире с элементами политики и стратегии. Каждый игрок может занять одну территорию, который может развивать, защищать и использовать для дипломатических или военных целей. 
+            </p>
+            <p class="server-content">
+                Возможность создавать союзы и участвовать в территориальных конфликтах делает игру динамичной, а ограниченность ресурсов усиливает конкуренцию и стратегическое планирование.
+            </p>
+<!-- 
+            <div class="server-stats">
+                <div class="stat-box">
+                    <div class="stat-value">32</div>
+                    <div class="stat-label">Гравці онлайн</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">128</div>
+                    <div class="stat-label">Макс. слотів</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">99.8%</div>
+                    <div class="stat-label">Аптайм</div>
+                </div>
+            </div> -->
 
-        <div id="log">
-            <h2>Логи:</h2>
+            <h3 style="color: #5e35b1; margin-bottom: 15px;">Особливості сервера:</h3>
+            <div class="server-features">
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Унікальні ігрові режими(война)</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Система досягнень та нагород(хахахаха мне лень делать)</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Дружня спільнота та активна команда модераторів(аххахахахахах)</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Спеціальні можливості для преміум-гравців(ДОНАТ!!!)</span>
+                </div>
+            </div>
+
+            <!-- <p class="server-content">
+                <span class="status-indicator"></span> <span class="highlight">Сервер працює</span> і готовий прийняти нових гравців прямо зараз! Приєднуйтесь до нашої спільноти та станьте частиною захоплюючих пригод!
+            </p> -->
+        </div>
+
+        <div class="user-panel">
+            <div class="game-logo pulse">✦</div>
+            <h1>XLauncher</h1>
+            <input type="text" id="username" placeholder="Введи нік">
+            <button onclick="launchGame()">Запуск гри</button>
+
+            <div id="log">
+                <h2>Логи:</h2>
+                <div>Система готова до запуску...</div>
+            </div>
         </div>
     </div>
 

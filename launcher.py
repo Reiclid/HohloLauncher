@@ -226,4 +226,4 @@ def start_game(username):
         add_log(f"❌ Сталася помилка: {str(e)}")
 
 # Запуск GUI
-eel.start('index.html', size=(700, 700))
+eel.start('index.html', size=(900, 600))
