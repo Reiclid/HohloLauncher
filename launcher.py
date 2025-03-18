@@ -6,6 +6,7 @@ import urllib.request
 import requests
 import zipfile
 import shutil
+import threading
 
 eel.init('web')
 
@@ -16,55 +17,88 @@ VERSIONS_DIR = os.path.join(MINECRAFT_DIR, "versions")
 LIBRARIES_DIR = os.path.join(MINECRAFT_DIR, "libraries")
 
 JAVA_URL = "https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
-JAVA_DIR = os.path.join(os.getcwd(), "jdk")
+JAVA_DIR = os.path.join(os.getcwd(), "jdk")  # Куди розпаковувати JDK
 
-def check_and_install_java():
+def is_java_installed():
+    """Перевіряє, чи встановлена Java та чи правильно працює."""
+    java_path = shutil.which("java")
+
+    if not java_path:
+        print("❌ Java не знайдено у PATH.")
+        return False
+
     try:
-        # Спроба виклику java -version
-        subprocess.run(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        print("✅ Java вже встановлено!")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("⚠️ Java не знайдено! Завантажуємо OpenJDK...")
-        download_and_extract_java()
+        result = subprocess.run(
+            [java_path, "-version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        output = result.stdout.strip() + result.stderr.strip()
+        if "version" in output and "21" in output:
+            add_log(f"✅ Java знайдено: {java_path}")
+            add_log(f"📌 Версія: {output.splitlines()[0]}")
+            return True
+        else:
+            add_log("⚠️ Java є, але версія не підходить!")
+            add_log(f"🔍 Вивід: {output}")
+            return False
+
+    except FileNotFoundError:
+        add_log("❌ Java не знайдено!")
+        return False
+
+@eel.expose
+def check_and_install_java():
+    """Перевіряє та встановлює Java після запуску вікна."""
+    if is_java_installed():
+        return
+    
+    add_log("⚠️ Java не знайдено! Завантажуємо OpenJDK...")
+    download_and_extract_java()
+    
+    if is_java_installed():
+        add_log("✅ Java успішно встановлено!")
+    else:
+        add_log("❌ Помилка встановлення Java!")
 
 def download_and_extract_java():
+    """Завантаження та встановлення OpenJDK."""
     java_zip = "java.zip"
-    
-    print("[INFO] Завантаження OpenJDK...")
-    urllib.request.urlretrieve(JAVA_URL, java_zip)
-    print("[INFO] Завантажено!")
 
-    print("[INFO] Розпаковка OpenJDK...")
+    add_log(f"[INFO] Завантаження OpenJDK за адресою: {JAVA_URL}")
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(JAVA_URL, headers=headers, stream=True)
+
+    if response.status_code != 200:
+        add_log(f"❌ Помилка завантаження JDK: {response.status_code} {response.reason}")
+        return
+
+    with open(java_zip, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    add_log("[INFO] Завантажено!")
+
+    add_log("[INFO] Розпаковка OpenJDK...")
     with zipfile.ZipFile(java_zip, "r") as zip_ref:
         zip_ref.extractall(JAVA_DIR)
     os.remove(java_zip)
-    print("[INFO] OpenJDK розпаковано у:", JAVA_DIR)
+    add_log(f"[INFO] OpenJDK розпаковано у: {JAVA_DIR}")
 
-    # Пошук папки jdk-... в JAVA_DIR
-    # (Беремо першу папку, що починається з "jdk")
-    jdk_subdir = None
-    for name in os.listdir(JAVA_DIR):
-        if name.startswith("jdk"):
-            jdk_subdir = name
-            break
+    # Пошук підпапки jdk-*
+    jdk_subdir = next((name for name in os.listdir(JAVA_DIR) if name.startswith("jdk")), None)
 
-    if jdk_subdir is None:
-        print("❌ Не вдалося знайти папку jdk всередині:", JAVA_DIR)
+    if not jdk_subdir:
+        add_log("❌ Не знайдено підпапку JDK у:", JAVA_DIR)
         return
 
     java_bin = os.path.join(JAVA_DIR, jdk_subdir, "bin")
     os.environ["PATH"] = java_bin + os.pathsep + os.environ["PATH"]
-    print("✅ Java додано в PATH:", java_bin)
+    add_log(f"✅ Java додано в PATH: {java_bin}")
 
-    # Перевірка ще раз
-    try:
-        subprocess.run(["java", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        print("✅ Java успішно встановлено!")
-    except Exception as e:
-        print("❌ Помилка встановлення Java:", e)
-
-# Викликаємо перевірку Java на початку
-check_and_install_java()
 
 # Функція для відправлення логів
 @eel.expose
@@ -151,9 +185,12 @@ def ensure_fabric_version():
 
     return fabric_version_name, fabric_profile_path  # Ім'я версії і шлях до профілю
 
+
+
 @eel.expose
 def start_game(username):
     try:
+
         add_log("Початок завантаження гри...")
 
         # Завантаження файлів з GitHub тільки при натисканні кнопки
@@ -235,5 +272,12 @@ def start_game(username):
     except Exception as e:
         add_log(f"❌ Сталася помилка: {str(e)}")
 
-# Запуск GUI
-eel.start('index.html', size=(900, 600))
+# 🚀 Запускаємо GUI без блокування
+eel.start('index.html', size=(900, 600), block=False)
+
+# ✅ Запускаємо перевірку Java у фоновому потоці
+threading.Thread(target=check_and_install_java, daemon=True).start()
+
+# 🎉 Основний цикл (щоб Python не закінчувався)
+while True:
+    eel.sleep(1)
