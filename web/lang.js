@@ -135,4 +135,8 @@ function launchGame() {
     
     // Your existing game launch code
     // eel.launch_game(username)...
+    eel.start_game(username)(function(response) {
+        // Показуємо відповідь від Python
+        addLog(response);
+    });
 }

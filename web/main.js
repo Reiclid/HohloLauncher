@@ -24,31 +24,18 @@ function updateJavaStatus(isInstalled) {
 //     eel.is_java_installed()(updateJavaStatus);
 // };
 
-function launchGame() {
-    let username = document.getElementById('username').value;
-    if (!username) {
-        alert("Введи нік!");
-        return;
-    }
+// function launchGame() {
+//     let username = document.getElementById('username').value;
+//     if (!username) {
+//         alert("Введи нік!");
+//         return;
+//     }
 
-    // Очищаємо старі логи
-    document.getElementById('log').innerHTML = "<h2>Логи:</h2>";
+//     // Очищаємо старі логи
+//     document.getElementById('log').innerHTML = "<h2>Логи:</h2>";
 
-    // Додаткова перевірка на Java при натисканні кнопки
-    eel.is_java_installed()(function(installed) {
-        if (!installed) {
-            warningText.style.display = "block";  // Показуємо попередження
-            addLog("⚠️ Java не знайдено! Гра не може бути запущена.");
-            return;
-        }
-
-        // Якщо Java є, запускаємо гру
-        document.getElementById('log').innerHTML = "<h2>Логи:</h2>";
-        eel.start_game(username)(function(response) {
-            addLog(response);
-        });
-    });
-}
+    
+// }
 
 function update_log(message) {
     let logDiv = document.getElementById('log');
