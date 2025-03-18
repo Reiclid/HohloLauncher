@@ -19,9 +19,22 @@ LIBRARIES_DIR = os.path.join(MINECRAFT_DIR, "libraries")
 JAVA_URL = "https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
 JAVA_DIR = os.path.join(os.getcwd(), "jdk")  # Куди розпаковувати JDK
 
+def get_java_path():
+    """Знаходить шлях до Java, якщо вона встановлена."""
+    java_path = shutil.which("java")
+    
+    # Перевіряємо PATH, якщо java не знайдено, шукаємо в нашій теці JDK
+    if not java_path:
+        potential_java = os.path.join(JAVA_DIR, "jdk-21.0.6+7", "bin", "java.exe")
+        if os.path.exists(potential_java):
+            return potential_java
+        return None
+    return java_path
+
+@eel.expose
 def is_java_installed():
     """Перевіряє, чи встановлена Java та чи правильно працює."""
-    java_path = shutil.which("java")
+    java_path = get_java_path()
 
     if not java_path:
         print("❌ Java не знайдено у PATH.")
@@ -53,15 +66,20 @@ def is_java_installed():
 def check_and_install_java():
     """Перевіряє та встановлює Java після запуску вікна."""
     if is_java_installed():
+        add_log("✅ Java встановлена і працює.")
+        eel.updateJavaStatus(True)
         return
-    
+        
+    eel.updateJavaStatus(False)
     add_log("⚠️ Java не знайдено! Завантажуємо OpenJDK...")
     download_and_extract_java()
     
     if is_java_installed():
         add_log("✅ Java успішно встановлено!")
+        eel.updateJavaStatus(True)
     else:
         add_log("❌ Помилка встановлення Java!")
+        eel.updateJavaStatus(False)
 
 def download_and_extract_java():
     """Завантаження та встановлення OpenJDK."""
@@ -273,7 +291,7 @@ def start_game(username):
         add_log(f"❌ Сталася помилка: {str(e)}")
 
 # 🚀 Запускаємо GUI без блокування
-eel.start('index.html', size=(900, 600), block=False)
+eel.start('index.html', size=(1100, 700), block=False)
 
 # ✅ Запускаємо перевірку Java у фоновому потоці
 threading.Thread(target=check_and_install_java, daemon=True).start()

@@ -1,3 +1,28 @@
+eel.expose(updateJavaStatus);
+
+function updateJavaStatus(isInstalled) {
+    let launchBtn = document.getElementById("launchBtn");
+    let warningText = document.getElementById("warning");
+
+    if (isInstalled) {
+        launchBtn.disabled = false;
+        launchBtn.style.background = "linear-gradient(to right, #4dd0e1, #5e35b1)";
+        launchBtn.style.cursor = "pointer";
+        warningText.style.display = "none";
+        addLog("✅ Java встановлена, можна запускати гру!");
+    } else {
+        launchBtn.disabled = true;
+        launchBtn.style.backgroundColor = "#ff215c";
+        launchBtn.style.cursor = "not-allowed";
+        warningText.style.display = "block";
+        addLog("⚠️ Java не знайдено! Спочатку встановіть її.");
+    }
+}
+
+// Викликати перевірку Java при завантаженні сторінки
+// window.onload = function() {
+//     eel.is_java_installed()(updateJavaStatus);
+// };
 
 function launchGame() {
     let username = document.getElementById('username').value;
@@ -9,10 +34,19 @@ function launchGame() {
     // Очищаємо старі логи
     document.getElementById('log').innerHTML = "<h2>Логи:</h2>";
 
-    // Викликаємо Python-функцію
-    eel.start_game(username)(function(response) {
-        // Показуємо відповідь від Python
-        addLog(response);
+    // Додаткова перевірка на Java при натисканні кнопки
+    eel.is_java_installed()(function(installed) {
+        if (!installed) {
+            warningText.style.display = "block";  // Показуємо попередження
+            addLog("⚠️ Java не знайдено! Гра не може бути запущена.");
+            return;
+        }
+
+        // Якщо Java є, запускаємо гру
+        document.getElementById('log').innerHTML = "<h2>Логи:</h2>";
+        eel.start_game(username)(function(response) {
+            addLog(response);
+        });
     });
 }
 
