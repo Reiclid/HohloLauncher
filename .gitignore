@@ -17,6 +17,7 @@ shaders/
 venv/
 build/
 dist/
+web/
 
 # Системні та тимчасові файли
 .DS_Store
