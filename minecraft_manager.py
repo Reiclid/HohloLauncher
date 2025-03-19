@@ -157,7 +157,10 @@ def start_game(username):
         "-cp", classpath,
         "-Dlog4j2.formatMsgNoLookups=true",
         "-Dlog4j.configurationFile=log4j2.xml",
-        "-Dlog4j2.level=ERROR"
+        "-Dlog4j2.level=ERROR",
+        "-Dsun.java2d.noddraw=false",  # Дозволяє змінювати іконку
+        "-Djava.awt.headless=false",  # Java GUI підтримка
+        "-Dawt.useSystemAAFontSettings=lcd",
     ]
     MC_ARGS = [
         main_class,
@@ -169,7 +172,8 @@ def start_game(username):
         "--accessToken", "0",
         "--uuid", "0",
         "--userType", "legacy",
-        "--quickPlayMultiplayer", "51.195.61.129:25614"
+        "--quickPlayMultiplayer", "51.195.61.129:25614",
+        "--title \"Мій Minecraft\""
     ]
     JVM_ARGS.append("-Dlog4j2.formatMsgNoLookups=true")
     MC_ARGS.append("--nogui")

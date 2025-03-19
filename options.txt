@@ -51,8 +51,8 @@ damageTiltStrength:1.0
 highContrast:false
 highContrastBlockOutline:false
 narratorHotkey:true
-resourcePacks:["vanilla","fabric","file/+1.21.3 Fresh Moves v3.1.1 (With Animated Eyes).zip","file/FreshAnimations_v1.9.3.zip"]
-incompatibleResourcePacks:["appleskin","yet_another_config_lib_v3"]
+resourcePacks:["vanilla","fabric","file/Panorama.zip"]
+incompatibleResourcePacks:["appleskin","yet_another_config_lib_v3","file/Panorama.zip"]
 lastServer:
 lang:en_us
 chatVisibility:0
@@ -78,7 +78,7 @@ tutorialStep:none
 mouseWheelSensitivity:1.0
 rawMouseInput:true
 glDebugVerbosity:1
-skipMultiplayerWarning:false
+skipMultiplayerWarning:true
 hideMatchedNames:true
 joinedFirstServer:true
 syncChunkWrites:true
