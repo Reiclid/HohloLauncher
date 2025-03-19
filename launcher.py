@@ -12,14 +12,14 @@ from ctypes import windll
 
 eel.init('web')
 
-root = tk.Tk()
-root.withdraw()  # Ховаємо головне вікно
-icon_path = os.path.abspath("icon.ico")
+# root = tk.Tk()
+# root.withdraw()
+# icon_path = os.path.abspath("icon.ico")
 
-# Перевіряємо, чи існує іконка
-if os.path.exists(icon_path):
-    root.iconbitmap(icon_path)  # Іконка для Tkinter
-    windll.shell32.SetCurrentProcessExplicitAppUserModelID("mycompany.myapp")  # Виправляє проблему з панеллю задач
+# # Перевіряємо, чи існує іконка
+# if os.path.exists(icon_path):
+#     root.iconbitmap(icon_path)  # Іконка для Tkinter
+#     windll.shell32.SetCurrentProcessExplicitAppUserModelID("mycompany.myapp") 
 
 VERSION = "1.21.4"
 FABRIC_LOADER = "0.16.10"
