@@ -51,7 +51,7 @@ damageTiltStrength:1.0
 highContrast:false
 highContrastBlockOutline:false
 narratorHotkey:true
-resourcePacks:["vanilla","fabric","file/Panorama.zip"]
+resourcePacks:["vanilla","fabric","+1.21.3 Fresh Moves v3.1.1 (With Animated Eyes).zip", "[1.4.1] Enhanced Boss Bars.zip", "FreshAnimations_v1.9.3.zip", "Icons v.1.11.3.zip", "panorama.zip"]
 incompatibleResourcePacks:["appleskin","yet_another_config_lib_v3","file/Panorama.zip"]
 lastServer:
 lang:en_us
